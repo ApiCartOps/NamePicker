@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>🎰 The Chaos Picker 3000</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+    background-size: 400% 400%;
+    animation: bgShift 8s ease infinite;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    padding: 20px;
+    overflow-x: hidden;
+  }
+
+  @keyframes bgShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  h1 {
+    font-size: 2.5em;
+    color: white;
+    text-shadow: 4px 4px 0 #2c3e50, -2px -2px 0 #ff1493;
+    margin-bottom: 8px;
+    animation: wobble 2s ease-in-out infinite;
+  }
+
+  .subtitle {
+    color: white;
+    font-size: 1.1em;
+    text-shadow: 2px 2px 0 #2c3e50;
+  }
+
+  @keyframes wobble {
+    0%, 100% { transform: rotate(-2deg) scale(1); }
+    50% { transform: rotate(2deg) scale(1.05); }
+  }
+
+  /* === 2-COLUMN LAYOUT === */
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr;
+    gap: 25px;
+    max-width: 1200px;
+    margin: 0 auto;
+    align-items: start;
+  }
+
+  /* Stack on smaller screens */
+  @media (max-width: 800px) {
+    .layout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* === LEFT COLUMN: NAME INPUT === */
+  .name-section {
+    background: rgba(255, 255, 255, 0.95);
+    border: 4px solid #2c3e50;
+    border-radius: 25px;
+    padding: 22px;
+    box-shadow: 0 8px 0 #2c3e50;
+  }
+
+  .name-section h2 {
+    color: #2c3e50;
+    margin-bottom: 12px;
+    font-size: 1.3em;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .name-input {
+    flex: 1;
+    min-width: 0;
+    padding: 12px 18px;
+    font-size: 1em;
+    border: 3px solid #2c3e50;
+    border-radius: 25px;
+    font-family: inherit;
+    outline: none;
+  }
+
+  .name-input:focus {
+    border-color: #ff1493;
+    box-shadow: 0 0 0 3px rgba(255, 20, 147, 0.3);
+  }
+
+  .add-btn {
+    padding: 12px 22px;
+    font-size: 1em;
+    font-weight: bold;
+    background: #1dd1a1;
+    color: white;
+    border: 3px solid #2c3e50;
+    border-radius: 25px;
+    cursor: pointer;
+    font-family: inherit;
+    text-shadow: 1px 1px 0 #2c3e50;
+    transition: transform 0.1s;
+    white-space: nowrap;
+  }
+
+  .add-btn:hover { transform: scale(1.05); }
+  .add-btn:active { transform: scale(0.95); }
+
+  .name-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 60px;
+    max-height: 220px;
+    overflow-y: auto;
+    padding: 10px;
+    background: #f0f0f0;
+    border-radius: 15px;
+    border: 2px dashed #2c3e50;
+    margin-bottom: 15px;
+  }
+
+  .name-list:empty::before {
+    content: "👇 Add some names! 👇";
+    color: #888;
+    font-style: italic;
+    width: 100%;
+    text-align: center;
+    padding: 15px;
+  }
+
+  .name-tag {
+    background: #feca57;
+    color: #2c3e50;
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 2px solid #2c3e50;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    animation: pop 0.3s ease;
+  }
+
+  @keyframes pop {
+    0% { transform: scale(0); }
+    70% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+  }
+
+  .remove-x {
+    background: #ff1493;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    font-weight: bold;
+    font-family: inherit;
+    line-height: 1;
+  }
+
+  .remove-x:hover { background: #c2185b; }
+
+  .pick-btn {
+    width: 100%;
+    padding: 18px 30px;
+    font-size: 1.3em;
+    font-weight: bold;
+    background: #ff1493;
+    color: white;
+    border: 5px solid #2c3e50;
+    border-radius: 50px;
+    cursor: pointer;
+    text-shadow: 2px 2px 0 #2c3e50;
+    box-shadow: 0 6px 0 #2c3e50;
+    transition: all 0.1s;
+    user-select: none;
+    font-family: inherit;
+  }
+
+  .pick-btn:hover:not(:disabled) {
+    transform: translateY(-2px) rotate(-1deg);
+    background: #ff69b4;
+  }
+
+  .pick-btn:active:not(:disabled) {
+    transform: translateY(6px);
+    box-shadow: 0 0 0 #2c3e50;
+  }
+
+  .pick-btn:disabled {
+    background: #999;
+    cursor: not-allowed;
+    box-shadow: 0 4px 0 #2c3e50;
+  }
+
+  .count-badge {
+    display: inline-block;
+    background: #2c3e50;
+    color: white;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    margin-left: 6px;
+  }
+
+  /* === RIGHT COLUMN: ARENA === */
+  .arena-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .arena {
+    width: 100%;
+    height: 400px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 5px dashed white;
+    border-radius: 25px;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(5px);
+  }
+
+  .arena:empty::before {
+    content: "👀 Add names and hit the button to start chaos!";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 1.2em;
+    text-shadow: 2px 2px 0 #2c3e50;
+    text-align: center;
+    width: 90%;
+  }
+
+  .person {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    color: #2c3e50;
+    padding: 10px 18px;
+    border-radius: 25px;
+    border: 3px solid #2c3e50;
+    font-weight: bold;
+    font-size: 1.05em;
+    box-shadow: 3px 3px 0 #2c3e50;
+    white-space: nowrap;
+  }
+
+  .arena.spinning .person {
+    animation: chaos 0.4s linear infinite;
+  }
+
+  .arena.spinning .person:nth-child(1)  { animation-delay: 0.00s; background: #ff6b6b; }
+  .arena.spinning .person:nth-child(2)  { animation-delay: 0.05s; background: #feca57; }
+  .arena.spinning .person:nth-child(3)  { animation-delay: 0.10s; background: #48dbfb; }
+  .arena.spinning .person:nth-child(4)  { animation-delay: 0.15s; background: #ff9ff3; }
+  .arena.spinning .person:nth-child(5)  { animation-delay: 0.20s; background: #1dd1a1; }
+  .arena.spinning .person:nth-child(6)  { animation-delay: 0.25s; background: #ee5a6f; }
+  .arena.spinning .person:nth-child(7)  { animation-delay: 0.30s; background: #a29bfe; }
+  .arena.spinning .person:nth-child(8)  { animation-delay: 0.35s; background: #fd79a8; }
+  .arena.spinning .person:nth-child(9)  { animation-delay: 0.02s; background: #00cec9; }
+  .arena.spinning .person:nth-child(10) { animation-delay: 0.07s; background: #fdcb6e; }
+  .arena.spinning .person:nth-child(n+11) { animation-delay: 0.12s; background: #74b9ff; }
+
+  @keyframes chaos {
+    0%   { top: 20%; left: 20%; transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+    20%  { top: 80%; left: 70%; transform: translate(-50%, -50%) rotate(180deg) scale(0.9); }
+    40%  { top: 30%; left: 80%; transform: translate(-50%, -50%) rotate(360deg) scale(1.1); }
+    60%  { top: 70%; left: 30%; transform: translate(-50%, -50%) rotate(540deg) scale(0.95); }
+    80%  { top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(720deg) scale(1.05); }
+    100% { top: 20%; left: 20%; transform: translate(-50%, -50%) rotate(900deg) scale(1); }
+  }
+
+  .arena.has-winner::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 50%, transparent 100px, rgba(0,0,0,0.85) 220px);
+    pointer-events: none;
+    animation: fadeIn 0.5s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .arena.has-winner .person:not(.winner) {
+    opacity: 0.15;
+    animation: none !important;
+  }
+
+  .arena.has-winner .winner {
+    top: 50% !important;
+    left: 50% !important;
+    animation: winner-dance 0.8s ease infinite !important;
+    background: gold !important;
+    z-index: 5;
+    font-size: 1.4em;
+    box-shadow: 0 0 40px gold, 5px 5px 0 #2c3e50;
+  }
+
+  @keyframes winner-dance {
+    0%, 100% { transform: translate(-50%, -50%) scale(1.4) rotate(-8deg); }
+    50%      { transform: translate(-50%, -50%) scale(1.6) rotate(8deg); }
+  }
+
+  .roast {
+    background: gold;
+    color: #2c3e50;
+    padding: 15px 25px;
+    border-radius: 20px;
+    border: 4px solid #2c3e50;
+    font-weight: bold;
+    text-align: center;
+    box-shadow: 0 6px 0 #2c3e50;
+    display: none;
+    animation: pop 0.5s ease;
+    font-size: 1.05em;
+  }
+
+  .roast.show { display: block; }
+
+  /* Floating decorations */
+  .floaty {
+    position: fixed;
+    font-size: 2em;
+    pointer-events: none;
+    animation: float 6s linear infinite;
+    opacity: 0.4;
+    z-index: -1;
+  }
+  .floaty:nth-child(1) { left: 5%;  animation-delay: 0s; }
+  .floaty:nth-child(2) { left: 95%; animation-delay: 2s; }
+  .floaty:nth-child(3) { left: 15%; animation-delay: 4s; }
+  .floaty:nth-child(4) { left: 85%; animation-delay: 1s; }
+
+  @keyframes float {
+    0%   { top: 110%; transform: rotate(0deg); }
+    100% { top: -10%; transform: rotate(360deg); }
+  }
+</style>
+</head>
+<body>
+
+  <div class="floaty">🎉</div>
+  <div class="floaty">🎊</div>
+  <div class="floaty">⭐</div>
+  <div class="floaty">🎈</div>
+
+  <div class="header">
+    <h1>🎰 THE CHAOS PICKER 3000 🎰</h1>
+    <p class="subtitle">Add the victims. Press the button. Pray. 🙏</p>
+  </div>
+
+  <div class="layout">
+
+    <!-- LEFT COLUMN -->
+    <div class="name-section">
+      <h2>👥 Who's playing? <span class="count-badge" id="count">0</span></h2>
+      <div class="input-row">
+        <input type="text" class="name-input" id="nameInput" placeholder="Type a name & hit Enter..." maxlength="20">
+        <button class="add-btn" onclick="addName()">+ ADD</button>
+      </div>
+      <div class="name-list" id="nameList"></div>
+      <button class="pick-btn" id="pickBtn" onclick="startPicking()" disabled>
+        🎲 PICK A VICTIM! 🎲
+      </button>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="arena-wrap">
+      <div class="arena" id="arena"></div>
+      <div class="roast" id="roast"></div>
+    </div>
+
+  </div>
+
+<script>
+  const names = [];
+  const input = document.getElementById('nameInput');
+  const list  = document.getElementById('nameList');
+  const arena = document.getElementById('arena');
+  const btn   = document.getElementById('pickBtn');
+  const roast = document.getElementById('roast');
+  const count = document.getElementById('count');
+
+  const roasts = [
+    name => `🏆 ${name} won! Suspicious. We're investigating. 🕵️`,
+    name => `🎉 ${name}! The algorithm has chosen YOU! No refunds! 💸`,
+    name => `👑 ${name} is the Chosen One! Their parents are so proud. 🥹`,
+    name => `🦄 ${name} wins! The unicorns have spoken. ✨`,
+    name => `🔥 ${name}! Time to face your destiny (probably doing the dishes). 🍽️`,
+    name => `🎯 ${name} got picked! Better luck next time, everyone else! 😈`,
+    name => `🌟 ${name} is the winner! Now do the thing nobody wanted to do! 😂`,
+    name => `🎪 Ladies and gentlemen, ${name}! Step right up to your fate! 🎭`,
+  ];
+
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') addName();
+  });
+
+  function addName() {
+    const v = input.value.trim();
+    if (!v || names.includes(v) || names.length >= 20) {
+      input.value = '';
+      return;
+    }
+    names.push(v);
+    renderList();
+    input.value = '';
+    input.focus();
+  }
+
+  function removeName(n) {
+    const i = names.indexOf(n);
+    if (i > -1) names.splice(i, 1);
+    renderList();
+  }
+
+  function renderList() {
+    list.innerHTML = '';
+    names.forEach(n => {
+      const tag = document.createElement('span');
+      tag.className = 'name-tag';
+      tag.innerHTML = `${escapeHtml(n)} <button class="remove-x" onclick="removeName('${n.replace(/'/g, "\\'")}')">×</button>`;
+      list.appendChild(tag);
+    });
+    btn.disabled = names.length < 2;
+    count.textContent = names.length;
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function startPicking() {
+    arena.classList.remove('has-winner');
+    arena.innerHTML = '';
+    roast.classList.remove('show');
+
+    names.forEach(n => {
+      const p = document.createElement('div');
+      p.className = 'person';
+      p.textContent = n;
+      arena.appendChild(p);
+    });
+
+    arena.classList.add('spinning');
+    btn.disabled = true;
+    btn.textContent = '🌀 SPINNING... 🌀';
+
+    setTimeout(() => {
+      const winnerIdx = Math.floor(Math.random() * names.length);
+      const winnerName = names[winnerIdx];
+      const winnerEl = arena.children[winnerIdx];
+      winnerEl.classList.add('winner');
+      arena.classList.add('has-winner');
+
+      const r = roasts[Math.floor(Math.random() * roasts.length)];
+      roast.textContent = r(winnerName);
+      roast.classList.add('show');
+
+      btn.disabled = false;
+      btn.textContent = '🎲 PICK AGAIN! 🎲';
+    }, 2500);
+  }
+</script>
+
+</body>
+</html>
